@@ -1,0 +1,23 @@
+[project]
+name = "freshrss-cli"
+version = "0.1.0"
+description = "FreshRSS CLI for OpenClaw AI assistant"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "freshrss-api>=0.3.0",
+    "typer>=0.12.0",
+    "rich>=13.0.0",
+    "python-dotenv>=1.0.0",
+    "loguru>=0.7.0",
+]
+
+[project.scripts]
+freshrss_cli = "freshrss_cli.main:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/freshrss_cli"]
