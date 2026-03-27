@@ -44,21 +44,40 @@ def _extract_excerpt(html_content: str, max_chars: int = 200) -> str:
 
 
 def get_feeds(client: FreshRSSAPI) -> list[dict[str, Any]]:
-    """Return list of feed dicts with name, url, id, unread_count."""
+    """Return list of feed dicts with name, url, id, unread_count.
+
+    The Fever API's get_feeds response does not include unread counts.
+    We fetch unread item IDs separately, then batch-fetch those items to
+    tally per-feed unread counts.
+    """
     data = client.get_feeds()
     feeds = data.get("feeds", [])
-    feeds_groups = data.get("feeds_groups", [])
 
-    # Build unread map from groups data isn't available directly; use favicons_ids workaround
-    # unread counts come from the feeds list itself
+    # --- Build unread count per feed ---
+    unread_per_feed: dict[int, int] = {}
+    raw_ids_str: str = client._call("unread_item_ids").get("unread_item_ids", "")
+    if raw_ids_str:
+        unread_ids = [int(x) for x in raw_ids_str.split(",") if x.strip()]
+        if unread_ids:
+            # Batch-fetch items (50 per request) to get feed_id for each
+            all_items: list[dict[str, Any]] = []
+            for i in range(0, len(unread_ids), 50):
+                batch = unread_ids[i : i + 50]
+                resp = client._call("items", with_ids=",".join(str(x) for x in batch))
+                all_items.extend(resp.get("items", []))
+            for item in all_items:
+                fid = int(item.get("feed_id", 0))
+                unread_per_feed[fid] = unread_per_feed.get(fid, 0) + 1
+
     result = []
     for f in feeds:
+        fid = int(f.get("id", 0))
         result.append({
-            "id": str(f.get("id", "")),
+            "id": str(fid),
             "name": f.get("title", "(no name)"),
             "url": f.get("url", ""),
             "site_url": f.get("site_url", ""),
-            "unread_count": f.get("unread_count", 0),
+            "unread_count": unread_per_feed.get(fid, 0),
         })
     return result
 
