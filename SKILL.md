@@ -1,6 +1,6 @@
 ---
 name: freshrss
-description: "Fetch news and RSS articles from FreshRSS via CLI for morning digest and news briefing. Use when Ewan asks for today's news, what's new in RSS feeds, morning briefing, or wants to read/save specific articles. Also use during morning heartbeat to generate a news summary. Credentials stored in ~/.config/freshrss_cli/config.env."
+description: "Fetch news and RSS articles from FreshRSS via CLI for morning digest and news briefing. Use when the user asks for today's news, what's new in RSS feeds, morning briefing, or wants to read/save specific articles. Also use during morning heartbeat to generate a news summary. Credentials stored in ~/.config/freshrss_cli/config.env."
 metadata:
   {"openclaw": {"emoji": "📰", "requires": {"bins": ["freshrss_cli"]}}}
 ---
@@ -31,7 +31,7 @@ freshrss_cli setup                          # Interactive setup wizard
 # 1. Get digest as JSON
 freshrss_cli digest --output json --limit 20
 
-# 2. Summarize for Ewan (AI step — pick notable stories)
+# 2. Summarize for the user (AI step — pick notable stories)
 
 # 3. Mark summarized items as read
 freshrss_cli read 111222333 444555666
